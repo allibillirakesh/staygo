@@ -42,7 +42,12 @@ exports.handler = async (event, context) => {
       arrTime: train.arrTime,
       duration: train.duration,
       durationMin: train.durationMin,
-      classes: train.classes,
+      classes: train.classes.map((c, i) => ({
+        code: c,
+        price: Math.floor(train.price * (1 - i * 0.15)),
+        avail: train.seats - i * 2,
+      })) || [],
+      sortedPrices: [['IRCTC', train.price]],
       prices: [{ price: train.price, platform: 'IRCTC', class: '3A' }],
       bestPrice: train.price,
       bestPlatform: 'IRCTC',

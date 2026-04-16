@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>StayGo | Compare Hotels, Flights, Trains & Buses Across India</title>
+    <meta name="description" content="StayGo compares prices from 15+ Indian travel platforms — MakeMyTrip, Goibibo, IRCTC, RedBus, Yatra & more. Find the cheapest hotels, flights, trains & buses instantly.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#000666",
+              "primary-container": "#1a237e",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#8690ee",
+              "secondary": "#9f4200",
+              "secondary-container": "#fd6c00",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#562000",
+              "tertiary": "#002108",
+              "tertiary-container": "#003912",
+              "on-tertiary-container": "#00b048",
+              "tertiary-fixed": "#69ff87",
+              "tertiary-fixed-dim": "#3ce36a",
+              "surface": "#f9f9fb",
+              "surface-container": "#eeeef0",
+              "surface-container-low": "#f3f3f5",
+              "surface-container-high": "#e8e8ea",
+              "surface-container-highest": "#e2e2e4",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1a1c1d",
+              "on-surface-variant": "#454652",
+              "outline": "#767683",
+              "outline-variant": "#c6c5d4",
+              "secondary-fixed": "#ffdbcb",
+              "secondary-fixed-dim": "#ffb692",
+              "primary-fixed": "#e0e0ff",
+              "primary-fixed-dim": "#bdc2ff",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "inverse-surface": "#2f3132",
+              "inverse-on-surface": "#f0f0f2",
+              "inverse-primary": "#bdc2ff",
+              "surface-bright": "#f9f9fb",
+              "surface-dim": "#d9dadc",
+              "surface-variant": "#e2e2e4",
+              "surface-tint": "#4c56af",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-fixed": "#002108",
+              "on-tertiary-fixed-variant": "#00531e",
+              "on-secondary-fixed": "#341100",
+              "on-secondary-fixed-variant": "#7a3000",
+              "on-primary-fixed": "#000767",
+              "on-primary-fixed-variant": "#343d96",
+              "on-background": "#1a1c1d",
+              "background": "#f9f9fb"
+            },
+            fontFamily: {
+              headline: ["Plus Jakarta Sans"],
+              body: ["Inter"],
+              label: ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+      h1, h2, h3, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+      /* Smooth page transitions */
+      .view { display: none; opacity: 0; transition: opacity 0.4s ease; }
+      .view.active { display: block; opacity: 1; }
+
+      /* Custom scrollbar */
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #c6c5d4; border-radius: 99px; }
+
+      /* Loading animations */
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      .shimmer {
+        background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 1; }
+        100% { transform: scale(1.4); opacity: 0; }
+      }
+      .pulse-ring::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid #fd6c00;
+        animation: pulse-ring 1.5s infinite;
+      }
+
+      @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+      .float-animation { animation: float 3s ease-in-out infinite; }
+
+      @keyframes count-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Loading bar */
+      @keyframes loading-bar {
+        0% { width: 0%; }
+        20% { width: 20%; }
+        40% { width: 45%; }
+        60% { width: 65%; }
+        80% { width: 85%; }
+        100% { width: 100%; }
+      }
+      .loading-bar-fill { animation: loading-bar 2.8s ease-out forwards; }
+
+      /* Fade in up animation for cards */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+
+      /* Best deal badge pulse */
+      @keyframes badge-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(253, 108, 0, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(253, 108, 0, 0); }
+      }
+      .badge-pulse { animation: badge-pulse 2s infinite; }
+
+      /* Scroll reveal */
+      .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
+
+      /* Price highlight */
+      .best-price { position: relative; }
+      .best-price::after {
+        content: '✓ LOWEST';
+        position: absolute;
+        right: -8px;
+        top: -8px;
+        background: #00b048;
+        color: white;
+        font-size: 8px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Autocomplete dropdown */
+      .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        z-index: 100;
+        max-height: 240px;
+        overflow-y: auto;
+        display: none;
+      }
+      .autocomplete-list.show { display: block; }
+      .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background 0.15s;
+      }
+      .autocomplete-item:hover { background: #f3f3f5; }
+      .autocomplete-item:first-child { border-radius: 12px 12px 0 0; }
+      .autocomplete-item:last-child { border-radius: 0 0 12px 12px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+
+    <!-- ==================== NAVBAR ==================== -->
+    <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm transition-all duration-300" id="navbar">
+        <nav class="flex justify-between items-center px-4 md:px-8 py-4 max-w-screen-2xl mx-auto">
+            <a href="#" onclick="showHome()" class="text-2xl font-bold tracking-tighter text-primary brand-font cursor-pointer select-none" id="logo">StayGo</a>
+            <div class="hidden md:flex items-center gap-8 font-headline text-sm tracking-tight">
+                <a class="nav-tab cursor-pointer text-primary font-bold border-b-2 border-primary pb-1 transition-all" data-nav="flights" id="nav-flights">Flights</a>
+                <a class="nav-tab cursor-pointer text-slate-600 hover:text-primary transition-all" data-nav="hotels" id="nav-hotels">Hotels</a>
+                <a class="nav-tab cursor-pointer text-slate-600 hover:text-primary transition-all" data-nav="trains" id="nav-trains">Trains</a>
+                <a class="nav-tab cursor-pointer text-slate-600 hover:text-primary transition-all" data-nav="buses" id="nav-buses">Buses</a>
+            </div>
+            <div class="flex items-center gap-3 md:gap-6">
+                <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded-full text-xs font-semibold" id="data-source-status" title="Data source information" style="display:none">
+                  <span class="inline-block w-2 h-2 rounded-full bg-on-surface-variant animate-pulse"></span>
+                  <span>🔄 Real-Time Data</span>
+                </div>
+                <button onclick="showSupportModal()" class="hidden md:block text-slate-600 hover:text-primary text-sm font-medium transition-all cursor-pointer">Support</button>
+                <button class="bg-primary text-white px-5 py-2 rounded-full text-sm font-semibold hover:scale-95 transition-transform duration-150" id="btn-signin">Sign In</button>
+                <!-- User Menu (shown when logged in) -->
+                <div class="hidden items-center gap-3" id="user-menu">
+                    <img class="w-8 h-8 rounded-full border-2 border-primary hidden" id="user-avatar" src="" alt="avatar"/>
+                    <span class="text-sm font-semibold text-primary hidden md:inline" id="user-name">Traveler</span>
+                    <button onclick="signOut()" class="text-xs text-slate-500 hover:text-error transition-colors" title="Sign Out">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                    </button>
+                </div>
+                <span class="material-symbols-outlined text-primary cursor-pointer md:hidden" onclick="toggleMobileMenu()">menu</span>
+            </div>
+        </nav>
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-white/95 backdrop-blur-xl border-t px-4 py-4 space-y-3" id="mobile-menu">
+            <a class="block py-2 text-sm font-semibold text-primary" onclick="searchType='flights';showHome()">Flights</a>
+            <a class="block py-2 text-sm font-semibold text-slate-600" onclick="searchType='hotels';showHome()">Hotels</a>
+            <a class="block py-2 text-sm font-semibold text-slate-600" onclick="searchType='trains';showHome()">Trains</a>
+            <a class="block py-2 text-sm font-semibold text-slate-600" onclick="searchType='buses';showHome()">Buses</a>
+        </div>
+    </header>
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <div class="view active" id="view-home">
+        <main class="pt-20">
+            <!-- Hero Section -->
+            <section class="relative min-h-[820px] flex items-center px-4 md:px-8 overflow-hidden">
+                <div class="absolute inset-0 z-0">
+                    <img class="w-full h-full object-cover" alt="Taj Mahal at sunrise with golden light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3kg2eSG9S-gPQM1lmdeMMgDKSJaFIF2OfapUXBmyQlaJL2l59LGeRb42yc4kxPPj12D8j55_QjjFFLkMMb4NWaKd_okwxV4NT3SalAnlp_V60JxmZzCx0G1MqOrDFf0CokUSMImn8eZJW4laDQ3f-thKQ5kL_iCtMw36ZRVs6JFfoyeyLr58nXg33eTUl6VmGurWJhslpto4dRtce4pEgv_a8U-3_OqNyqgtAYOFTiAy14rmNXvA79adufTDcJLLmcpRynuLLKbT-"/>
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary-container/50 to-transparent"></div>
+                </div>
+                <div class="relative z-10 max-w-screen-2xl mx-auto w-full">
+                    <div class="max-w-2xl mb-10">
+                        <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter leading-[1.1] mb-6">
+                            Discover the Soul of <span class="text-secondary-fixed">India.</span>
+                        </h1>
+                        <p class="text-white/90 text-base md:text-xl max-w-xl font-medium leading-relaxed mb-4">
+                            Compare prices from <strong>15+ platforms</strong> — MakeMyTrip, Goibibo, IRCTC, RedBus, Yatra & more. Find the cheapest option in seconds.
+                        </p>
+                    </div>
+
+                    <!-- Search Widget -->
+                    <div class="bg-white/80 backdrop-blur-2xl rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-2xl border border-white/20">
+                        <!-- Travel Type Tabs -->
+                        <div class="flex gap-2 md:gap-4 mb-6 md:mb-8 overflow-x-auto pb-2">
+                            <button class="search-tab flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-full bg-primary text-white font-semibold text-sm whitespace-nowrap transition-all" data-type="flights" id="tab-flights">
+                                <span class="material-symbols-outlined text-lg">flight</span>
+                                <span>Flights</span>
+                            </button>
+                            <button class="search-tab flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-surface-container-high text-on-surface-variant font-medium text-sm whitespace-nowrap transition-all" data-type="hotels" id="tab-hotels">
+                                <span class="material-symbols-outlined text-lg">hotel</span>
+                                <span>Hotels</span>
+                            </button>
+                            <button class="search-tab flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-surface-container-high text-on-surface-variant font-medium text-sm whitespace-nowrap transition-all" data-type="trains" id="tab-trains">
+                                <span class="material-symbols-outlined text-lg">train</span>
+                                <span>Trains</span>
+                            </button>
+                            <button class="search-tab flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-surface-container-high text-on-surface-variant font-medium text-sm whitespace-nowrap transition-all" data-type="buses" id="tab-buses">
+                                <span class="material-symbols-outlined text-lg">directions_bus</span>
+                                <span>Buses</span>
+                            </button>
+                        </div>
+
+                        <!-- Search Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+                            <div class="space-y-1 relative">
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-widest px-2">From</label>
+                                <div class="bg-surface-container-high rounded-xl p-3 md:p-4 flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-outline">location_on</span>
+                                    <input class="bg-transparent border-none focus:ring-0 w-full text-on-surface font-semibold placeholder:text-outline-variant text-sm" placeholder="e.g. New Delhi" type="text" id="search-from" autocomplete="off"/>
+                                </div>
+                                <div class="autocomplete-list" id="autocomplete-from"></div>
+                            </div>
+                            <div class="space-y-1 relative">
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-widest px-2" id="label-to">To</label>
+                                <div class="bg-surface-container-high rounded-xl p-3 md:p-4 flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-outline" id="icon-to">flight_land</span>
+                                    <input class="bg-transparent border-none focus:ring-0 w-full text-on-surface font-semibold placeholder:text-outline-variant text-sm" placeholder="e.g. Mumbai" type="text" id="search-to" autocomplete="off"/>
+                                </div>
+                                <div class="autocomplete-list" id="autocomplete-to"></div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-widest px-2">Dates</label>
+                                <div class="bg-surface-container-high rounded-xl p-3 md:p-4 flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-outline">calendar_month</span>
+                                    <input class="bg-transparent border-none focus:ring-0 w-full text-on-surface font-semibold placeholder:text-outline-variant text-sm" type="date" id="search-date"/>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-widest px-2">Travelers</label>
+                                <div class="bg-surface-container-high rounded-xl p-3 md:p-4 flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-outline">group</span>
+                                    <select class="bg-transparent border-none focus:ring-0 w-full text-on-surface font-semibold text-sm" id="search-travelers">
+                                        <option value="1">1 Adult</option>
+                                        <option value="2" selected>2 Adults</option>
+                                        <option value="3">3 Adults</option>
+                                        <option value="4">4 Adults</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-end">
+                                <button class="w-full bg-gradient-to-r from-secondary to-secondary-container text-white h-[52px] md:h-[60px] rounded-full font-bold text-base md:text-lg hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2" onclick="performSearch()" id="btn-search">
+                                    <span class="material-symbols-outlined">search</span>
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Platform strip -->
+                    <div class="mt-6 flex flex-wrap items-center gap-2 md:gap-3">
+                        <span class="text-white/60 text-xs font-medium">Comparing from:</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">MakeMyTrip</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">Goibibo</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">IRCTC</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">RedBus</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">Yatra</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">Cleartrip</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hidden md:inline">EaseMyTrip</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hidden md:inline">ixigo</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hidden lg:inline">OYO</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hidden lg:inline">Booking.com</span>
+                        <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hidden lg:inline">+5 more</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="py-12 md:py-16 bg-surface-container-low">
+                <div class="max-w-screen-2xl mx-auto px-4 md:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                    <div class="text-center reveal">
+                        <div class="text-3xl md:text-4xl font-extrabold text-primary brand-font counter" data-target="15">0</div>
+                        <div class="text-xs md:text-sm text-on-surface-variant font-medium mt-1">Platforms Compared</div>
+                    </div>
+                    <div class="text-center reveal">
+                        <div class="text-3xl md:text-4xl font-extrabold text-secondary brand-font">₹<span class="counter" data-target="2400">0</span></div>
+                        <div class="text-xs md:text-sm text-on-surface-variant font-medium mt-1">Avg. Savings Per Trip</div>
+                    </div>
+                    <div class="text-center reveal">
+                        <div class="text-3xl md:text-4xl font-extrabold text-primary brand-font counter" data-target="50000">0</div>
+                        <div class="text-xs md:text-sm text-on-surface-variant font-medium mt-1">Happy Travelers</div>
+                    </div>
+                    <div class="text-center reveal">
+                        <div class="text-3xl md:text-4xl font-extrabold text-on-tertiary-container brand-font counter" data-target="4.8">0</div>
+                        <div class="text-xs md:text-sm text-on-surface-variant font-medium mt-1">User Rating / 5</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trending Destinations -->
+            <section class="py-16 md:py-24 px-4 md:px-8 max-w-screen-2xl mx-auto">
+                <div class="flex justify-between items-end mb-8 md:mb-12">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-primary mb-2">Trending Destinations</h2>
+                        <p class="text-on-surface-variant font-medium text-sm md:text-base">Handpicked escapes for the Indian explorer.</p>
+                    </div>
+                    <button class="text-primary font-bold flex items-center gap-1 group text-sm">
+                        View all <span class="material-symbols-outlined transition-transform group-hover:translate-x-1 text-base">arrow_forward</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Delhi Large Card -->
+                    <div class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-2xl md:rounded-3xl h-[320px] md:h-[600px] shadow-sm cursor-pointer" onclick="quickSearch('New Delhi')">
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Old Delhi colorful architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAV1DqTsoJAfj4h4OGJGst8JtfZnOwKtCXe3af_dL2uQf_nPCqb8sWsSXDN6EoEwbgLm5w4hBFZp7966ek9Zee9zcHqoXRVrUX4wXJpmx1d9DGgpaKxJ2hHfRttcqkuSoBLm-6ay4Y-gTXlSZramOapn3PsumrffQ07KQR1EH1b4ztHQJyWc7p3DtWBaeYDQ71uA_AHbnQ63XAe6tT9dxW6N7yEcmZAmBT1XYlon6O12UK8Dy3LLbZbIf0tN1hHkndscpZmzlJdIyJ"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                            <span class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-[10px] font-bold mb-3 inline-block">MOST POPULAR</span>
+                            <h3 class="text-white text-2xl md:text-3xl font-bold mb-1">Delhi</h3>
+                            <p class="text-white/80 mb-4 font-medium text-sm">A tapestry of history and modernity.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-white font-bold text-xl md:text-2xl">₹2,499<span class="text-sm font-normal text-white/60"> / night</span></span>
+                                <span class="bg-white text-primary px-4 md:px-6 py-2 rounded-full font-bold text-sm hover:bg-primary-fixed transition-colors">Explore</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mumbai -->
+                    <div class="relative group overflow-hidden rounded-2xl md:rounded-3xl h-[200px] md:h-[288px] shadow-sm bg-surface-container-lowest cursor-pointer" onclick="quickSearch('Mumbai')">
+                        <img class="w-full h-[130px] md:h-[180px] object-cover rounded-xl md:rounded-2xl m-2 transition-transform duration-500 group-hover:scale-105" alt="Gateway of India Mumbai" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt1y8RciWYv29d9kPw9512TOYoZu2se2leg8f4H7aNaek0xy0jgLcQ99gIPF20-G9C-30jKP55N7lFG-_BmStCKNOkgW81HX88JO8EGVNlG7Wcb-0BOWMX3xri8R-4lD6-y70l7UC1v03k16xjfvw3o9LEWNtmbfDD7l6ogpRIFa7t2h7TRw0dpnDnFGnYEHrXNpW8ZRL8GXjlMs8Tt81N5-82afyCUSUtia5ojKGziwuj8hvQPGiKBJVrXpjcA1_rFeesG7Tt-AaW"/>
+                        <div class="p-3 md:p-4 pt-1 md:pt-2">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg md:text-xl font-bold text-primary">Mumbai</h3>
+                                <span class="text-secondary font-bold text-sm">₹4,200+</span>
+                            </div>
+                            <p class="text-xs md:text-sm text-on-surface-variant font-medium">Gateway to the West</p>
+                        </div>
+                    </div>
+                    <!-- Bengaluru -->
+                    <div class="relative group overflow-hidden rounded-2xl md:rounded-3xl h-[200px] md:h-[288px] shadow-sm bg-surface-container-lowest cursor-pointer" onclick="quickSearch('Bengaluru')">
+                        <img class="w-full h-[130px] md:h-[180px] object-cover rounded-xl md:rounded-2xl m-2 transition-transform duration-500 group-hover:scale-105" alt="Bengaluru garden city" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvVYZRoHnls4F1cgQWHM2huabpAtSgWlHAI7jAjWLMhDlGKGds39f0X-XXrLx7Zf6c4FM4-dXFdesuh15kAYsLigolU0BdF53xwAwkl5D-y4gU7vhq8phpwQ2RRtqLEEFzyKYhLDjuwQH-f1AFoyWbKaBXmiv_YrjLGTI3h4nj5rofpL1JDH79xgX730GQ2qgJ1InTD66YZXs7XBBfjpBaFUDyJoHF2PksdzVpj1AZNPkf8z8zZBPo5J8giB5mBcg6NSAunI_lw4v_"/>
+                        <div class="p-3 md:p-4 pt-1 md:pt-2">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg md:text-xl font-bold text-primary">Bengaluru</h3>
+                                <span class="text-secondary font-bold text-sm">₹3,800+</span>
+                            </div>
+                            <p class="text-xs md:text-sm text-on-surface-variant font-medium">The Garden City</p>
+                        </div>
+                    </div>
+                    <!-- Jaipur -->
+                    <div class="md:col-span-2 relative group overflow-hidden rounded-2xl md:rounded-3xl h-[200px] md:h-[288px] shadow-sm cursor-pointer" onclick="quickSearch('Jaipur')">
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Hawa Mahal Jaipur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkWWejHqFbaSOfvkWTj8LhtkqsQEqOTpCL_e__9jePa94P5em0jH1EcFx90BtvChOyuUFWoFyyPj1ihuqvSouUmFHYEJ_T1i1riplUhWOS_dXC9K2nPZJbcPQRPGh14jQUQQvZPMF1G5h2UmbrEeS6uv0MWAhtsn8C814mvx6lubxRsEKxdMQ-eu7CduW0jhGzK9ckNotB-CdZxP9pKTGEioXfzvVsR3eEsEll2NGBOlMLMa_StiZRoBpybgPq8MgrCgBP3Cw1o1LV"/>
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+                        <div class="absolute inset-0 p-6 md:p-8 flex flex-col justify-center">
+                            <h3 class="text-white text-2xl md:text-3xl font-bold mb-1">Jaipur</h3>
+                            <p class="text-white/80 mb-3 font-medium text-sm">Royal heritage awaits in the Pink City.</p>
+                            <span class="text-white font-bold text-lg md:text-xl">Starting at ₹1,999</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why StayGo -->
+            <section class="bg-surface-container-low py-16 md:py-24">
+                <div class="max-w-screen-2xl mx-auto px-4 md:px-8">
+                    <div class="text-center max-w-2xl mx-auto mb-12 md:mb-16">
+                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-primary mb-4">Why Travel With StayGo?</h2>
+                        <p class="text-on-surface-variant font-medium text-sm md:text-lg">We compare prices so you don't have to open 15 tabs.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                        <div class="bg-surface-container-lowest p-8 md:p-10 rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:shadow-xl group reveal">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary-fixed flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-primary text-2xl md:text-3xl">verified</span>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold text-primary mb-3">Best Price Guarantee</h3>
+                            <p class="text-on-surface-variant leading-relaxed font-medium text-sm">We compare from 15+ sources — MakeMyTrip, Goibibo, Yatra, Cleartrip, Booking.com & more to ensure you always get the lowest price.</p>
+                        </div>
+                        <div class="bg-surface-container-lowest p-8 md:p-10 rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:shadow-xl group reveal">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-secondary-fixed flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-secondary text-2xl md:text-3xl">payments</span>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold text-primary mb-3">No Hidden Fees</h3>
+                            <p class="text-on-surface-variant leading-relaxed font-medium text-sm">All taxes and surcharges included upfront. What you see is what you pay — complete transparency in INR.</p>
+                        </div>
+                        <div class="bg-surface-container-lowest p-8 md:p-10 rounded-[1.5rem] md:rounded-[2rem] transition-all duration-300 hover:shadow-xl group reveal">
+                            <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-tertiary-fixed flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-tertiary-container text-2xl md:text-3xl">support_agent</span>
+                            </div>
+                            <h3 class="text-lg md:text-xl font-bold text-primary mb-3">All Transport Types</h3>
+                            <p class="text-on-surface-variant leading-relaxed font-medium text-sm">Hotels, flights, trains & buses — all in one place. Compare IRCTC, RedBus, SpiceJet, OYO and many more simultaneously.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================== LOADING VIEW ==================== -->
+    <div class="view" id="view-loading">
+        <main class="pt-20 min-h-screen flex items-center justify-center">
+            <div class="text-center max-w-md mx-auto px-8">
+                <div class="w-20 h-20 mx-auto rounded-full bg-primary-fixed flex items-center justify-center mb-8 float-animation">
+                    <span class="material-symbols-outlined text-primary text-4xl" id="loading-icon">flight</span>
+                </div>
+                <h2 class="text-2xl font-bold text-primary brand-font mb-2">Scanning Platforms...</h2>
+                <p class="text-on-surface-variant text-sm mb-2">Comparing prices from <strong id="loading-platform-name">MakeMyTrip</strong></p>
+                <div class="w-full bg-surface-container-high rounded-full h-2 mb-4 overflow-hidden">
+                    <div class="bg-gradient-to-r from-secondary to-secondary-container h-full rounded-full loading-bar-fill" id="loading-bar"></div>
+                </div>
+                <p class="text-xs text-outline" id="loading-count">Checked 0 of 15 platforms</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== RESULTS VIEW ==================== -->
+    <div class="view" id="view-results">
+        <main class="pt-24 pb-12 max-w-screen-2xl mx-auto px-4 md:px-8">
+            <!-- Search Summary Banner -->
+            <div class="mb-6 md:mb-8 p-4 md:p-6 bg-primary rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10">
+                    <img class="w-full h-full object-cover" alt="" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwbljPBbbuONz9jVROTrpBom5I4qT_ee1_nFkNx5LMmK3LCFOqwrHKOd72eHxxVU4CUe1Jv3ykZ8Ny8Vrujn85ilO06IGRz90todhE6R592cI4jTRcPfnE_td4i6zMTrMPpeCoHfZltEz5gTfXtzAGaxnBuVQAH39NLiPA9LpNYgKJJM8Hj895MS5a5sUsIugX83XXg-qF8GBRJ6dLbZKLUNwDU8zMXJ28ZGLMS8dFXM8NzgSWiK_VZv9lu8FkkWAwL4tP3mKqw3HP"/>
+                </div>
+                <div class="relative z-10">
+                    <h1 class="text-white text-lg md:text-xl font-headline font-bold" id="results-title">New Delhi → Mumbai</h1>
+                    <p class="text-on-primary-container text-xs md:text-sm" id="results-subtitle">24 Oct • 2 Adults</p>
+                </div>
+                <button class="relative z-10 px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium backdrop-blur-md transition-all" onclick="showHome()">Modify Search</button>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
+                <!-- Filters Sidebar -->
+                <aside class="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-24 h-fit" id="filters-sidebar">
+                    <div class="bg-surface-container-low rounded-xl p-4 md:p-6 space-y-5 md:space-y-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg md:text-xl font-bold text-primary brand-font">Filters</h2>
+                                <p class="text-[10px] md:text-xs text-slate-500">Refine your search</p>
+                            </div>
+                            <button class="text-secondary text-xs font-semibold hover:underline" onclick="resetFilters()">Reset</button>
+                        </div>
+                        <div id="filter-controls">
+                            <!-- Dynamically populated by JS -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Results Content -->
+                <div class="flex-1 space-y-4 md:space-y-6">
+                    <!-- Sort Tabs -->
+                    <div class="grid grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
+                        <button class="sort-tab p-3 md:p-4 bg-white border-b-4 border-primary rounded-xl text-left shadow-sm" data-sort="price" id="sort-cheapest">
+                            <p class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cheapest</p>
+                            <p class="text-base md:text-lg font-headline font-bold text-primary" id="cheapest-price">—</p>
+                            <p class="text-[9px] md:text-[10px] text-slate-400" id="cheapest-sub"></p>
+                        </button>
+                        <button class="sort-tab p-3 md:p-4 bg-white border-b-4 border-transparent hover:border-surface-container-highest rounded-xl text-left transition-all" data-sort="fastest" id="sort-fastest">
+                            <p class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Fastest</p>
+                            <p class="text-base md:text-lg font-headline font-bold text-slate-700" id="fastest-price">—</p>
+                            <p class="text-[9px] md:text-[10px] text-slate-400" id="fastest-sub"></p>
+                        </button>
+                        <button class="sort-tab p-3 md:p-4 bg-white border-b-4 border-transparent hover:border-surface-container-highest rounded-xl text-left transition-all" data-sort="rating" id="sort-best">
+                            <p class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Best Value</p>
+                            <p class="text-base md:text-lg font-headline font-bold text-slate-700" id="best-price">—</p>
+                            <p class="text-[9px] md:text-[10px] text-slate-400" id="best-sub"></p>
+                        </button>
+                    </div>
+
+                    <!-- Results Cards Container -->
+                    <div id="results-container">
+                        <!-- Dynamically populated by JS -->
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="flex justify-center pt-6 md:pt-8" id="load-more-wrap" style="display:none;">
+                        <button class="px-8 py-3 border border-outline-variant rounded-full text-sm font-bold text-primary hover:bg-surface-container-low transition-all" onclick="loadMore()">Show More Results</button>
+                    </div>
+
+                    <!-- Smart Recommendations: Budget Hotels & How to Reach -->
+                    <div id="smart-recommendations" style="display:none;" class="mt-8 space-y-6">
+                        <!-- Budget Nearby Hotels -->
+                        <div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 border border-outline-variant/10" id="nearby-hotels-section">
+                            <h3 class="text-lg font-bold brand-font text-primary mb-1 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">hotel</span>
+                                Budget-Friendly Hotels at Destination
+                            </h3>
+                            <p class="text-xs text-on-surface-variant mb-4">Stay comfortably without breaking the bank</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="nearby-hotels-grid">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- How to Reach -->
+                        <div class="bg-surface-container-lowest rounded-2xl p-4 md:p-6 border border-outline-variant/10" id="how-to-reach-section">
+                            <h3 class="text-lg font-bold brand-font text-primary mb-1 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">directions</span>
+                                How to Reach — Budget Friendly Options
+                            </h3>
+                            <p class="text-xs text-on-surface-variant mb-4">All ways to get there, sorted by budget</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="how-to-reach-grid">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Setup Required View -->
+    <div class="view" id="view-setup-required">
+        <main class="pt-24 pb-12 max-w-screen-2xl mx-auto px-4 md:px-8 min-h-screen flex items-center justify-center">
+            <div class="max-w-2xl w-full">
+                <!-- Setup Card -->
+                <div class="bg-gradient-to-br from-primary-fixed via-white to-surface-container rounded-2xl shadow-lg overflow-hidden">
+                    <div class="p-8 md:p-12 text-center">
+                        <!-- Icon -->
+                        <div class="mb-8">
+                            <div class="w-20 h-20 rounded-full bg-primary-fixed/20 flex items-center justify-center mx-auto">
+                                <span class="material-symbols-outlined text-primary text-5xl">settings</span>
+                            </div>
+                        </div>
+
+                        <!-- Heading -->
+                        <h1 class="text-3xl md:text-4xl font-black text-primary brand-font mb-3">
+                            Real-Time Data Only
+                        </h1>
+                        <p class="text-lg text-on-surface-variant mb-8 leading-relaxed">
+                            We've removed demo data to show you only real, live prices from actual travel platforms. 
+                            <strong>Setup real data in just 5 minutes</strong> to start comparing flights, hotels, trains & buses.
+                        </p>
+
+                        <!-- Features List -->
+                        <div class="space-y-4 mb-10 text-left bg-surface-container-lowest p-6 rounded-xl">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                    <span class="material-symbols-outlined text-white text-lg">flight</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface">Flights</p>
+                                    <p class="text-sm text-on-surface-variant">MakeMyTrip, Goibibo, Cleartrip</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                                    <span class="material-symbols-outlined text-white text-lg">hotel</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface">Hotels</p>
+                                    <p class="text-sm text-on-surface-variant">Booking.com, OYO, MakeMyTrip</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-tertiary flex items-center justify-center flex-shrink-0">
+                                    <span class="material-symbols-outlined text-white text-lg">train</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface">Trains</p>
+                                    <p class="text-sm text-on-surface-variant">IRCTC, MakeMyTrip, Confirmtkt</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                    <span class="material-symbols-outlined text-white text-lg">directions_bus</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-on-surface">Buses</p>
+                                    <p class="text-sm text-on-surface-variant">RedBus, AbhiBus, Yatra</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Start Info -->
+                        <div class="bg-secondary-fixed/10 border-2 border-secondary-fixed rounded-xl p-6 mb-10 text-left">
+                            <h3 class="font-bold text-on-surface mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-secondary">timer</span>
+                                Quick Setup (2 minutes - Puppeteer Backend)
+                            </h3>
+                            <ol class="space-y-3 text-sm text-on-surface-variant">
+                                <li class="flex gap-3">
+                                    <span class="font-bold text-secondary bg-secondary-fixed/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">1</span>
+                                    <span>Install <strong>Node.js</strong> from <strong>nodejs.org</strong> (if not already installed)</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="font-bold text-secondary bg-secondary-fixed/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">2</span>
+                                    <span>Open terminal in this folder and run: <strong>npm install</strong></span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="font-bold text-secondary bg-secondary-fixed/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">3</span>
+                                    <span>Start backend: <strong>npm start</strong> (will run on localhost:3000)</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="font-bold text-secondary bg-secondary-fixed/20 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">4</span>
+                                    <span>Refresh this page (F5) - it will auto-detect the backend and start working!</span>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <!-- CTA Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="showHome()" class="px-8 py-4 bg-white text-primary rounded-xl font-bold border-2 border-primary hover:bg-primary-fixed/10 transition-all">
+                                Back to Home
+                            </button>
+                            <a href="PUPPETEER_SETUP.md" target="_blank" class="px-8 py-4 bg-primary text-white rounded-xl font-bold hover:bg-primary-container transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">description</span>
+                                Full Backend Guide
+                            </a>
+                        </div>
+
+                        <!-- Info Footer -->
+                        <div class="mt-10 pt-8 border-t-2 border-outline-variant">
+                            <p class="text-xs text-on-surface-variant">
+                                <strong>Using Puppeteer Backend</strong> - Automatically scrapes real data from 15+ travel websites. 
+                                No API keys needed! Backend server handles all data fetching. <strong>First search takes 15-30 seconds</strong> (browser initialization), subsequent searches are faster.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="w-full mt-12 md:mt-20 bg-surface-container-low border-t border-outline-variant/20">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 px-6 md:px-12 py-10 md:py-16 max-w-screen-2xl mx-auto">
+            <div class="col-span-2 md:col-span-1 space-y-4 md:space-y-6">
+                <div class="text-lg font-black text-primary brand-font">StayGo</div>
+                <p class="text-xs leading-relaxed text-slate-500">
+                    India's smartest travel comparison platform. Compare hotels, flights, trains & buses from 15+ websites instantly.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-primary mb-4 md:mb-6 text-sm">Compare</h4>
+                <div class="flex flex-col gap-2 md:gap-3">
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Flights</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Hotels</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Trains</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Buses</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-primary mb-4 md:mb-6 text-sm">Top Cities</h4>
+                <div class="flex flex-col gap-2 md:gap-3">
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Mumbai</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Delhi</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Bangalore</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Goa</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-primary mb-4 md:mb-6 text-sm">Company</h4>
+                <div class="flex flex-col gap-2 md:gap-3">
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">About Us</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Terms of Service</a>
+                    <a class="text-xs text-slate-500 hover:text-primary transition-colors" href="#">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-screen-2xl mx-auto px-6 md:px-12 py-6 border-t border-outline-variant/10">
+            <p class="text-xs text-slate-400 text-center">© 2026 StayGo India. All rights reserved. Made with ❤️ in India</p>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="hidden fixed inset-0 z-[999] bg-black/50 backdrop-blur-sm items-center justify-center p-4" id="auth-modal">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 z-10">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <div class="text-2xl font-bold text-primary brand-font mb-1">Welcome to StayGo</div>
+                    <p class="text-sm text-on-surface-variant">Sign in to save searches & get personalized deals</p>
+                </div>
+
+                <!-- Auth Tabs -->
+                <div class="flex bg-surface-container rounded-xl p-1 mb-6">
+                    <button class="auth-tab-btn flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all bg-primary text-white" id="auth-tab-google" onclick="switchAuthTab('google')">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">account_circle</span> Google
+                    </button>
+                    <button class="auth-tab-btn flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all text-on-surface-variant" id="auth-tab-phone" onclick="switchAuthTab('phone')">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">phone_android</span> Phone
+                    </button>
+                </div>
+
+                <!-- Google Sign-in Panel -->
+                <div id="auth-google-panel">
+                    <button onclick="signInWithGoogle()" class="w-full flex items-center justify-center gap-3 py-3.5 border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-fixed/10 transition-all group">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <span class="font-semibold text-on-surface group-hover:text-primary">Continue with Google</span>
+                    </button>
+                    <div class="mt-4 text-center">
+                        <p class="text-[10px] text-slate-400">By signing in, you agree to our Terms & Privacy Policy</p>
+                    </div>
+                </div>
+
+                <!-- Phone Sign-in Panel -->
+                <div id="auth-phone-panel" class="hidden">
+                    <div id="phone-step-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="bg-surface-container-high rounded-lg px-3 py-3 text-sm font-semibold text-on-surface flex items-center gap-1">
+                                <span>🇮🇳</span> +91
+                            </div>
+                            <input type="tel" id="phone-input" placeholder="Enter mobile number" maxlength="10" class="flex-1 border-2 border-outline-variant rounded-lg px-4 py-3 text-sm font-semibold focus:border-primary focus:ring-0 transition-colors" />
+                        </div>
+                        <button onclick="sendOTP()" class="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-container transition-colors">
+                            Send OTP
+                        </button>
+                    </div>
+                    <div id="phone-step-2" class="hidden">
+                        <p class="text-sm text-on-surface-variant mb-3 text-center">Enter the 6-digit OTP sent to your phone</p>
+                        <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6" class="w-full text-center border-2 border-outline-variant rounded-lg px-4 py-3 text-lg font-bold tracking-[0.5em] focus:border-primary focus:ring-0 transition-colors mb-3" />
+                        <button onclick="verifyOTP()" class="w-full py-3 bg-secondary text-white rounded-xl font-bold text-sm hover:bg-secondary-container transition-colors">
+                            Verify & Sign In
+                        </button>
+                        <button onclick="document.getElementById('phone-step-1').classList.remove('hidden');document.getElementById('phone-step-2').classList.add('hidden');" class="w-full py-2 text-xs text-on-surface-variant hover:text-primary mt-2">
+                            ← Resend OTP
+                        </button>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-[10px] text-slate-400">Standard SMS rates may apply</p>
+                    </div>
+                </div>
+
+                <!-- Loading spinner -->
+                <div class="hidden mt-4 text-center" id="auth-loading">
+                    <div class="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recaptcha Container for Phone Auth -->
+    <div id="recaptcha-container"></div>
+
+    <!-- Hotel Details Modal -->
+    <div class="hidden fixed inset-0 z-[999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto" id="hotel-details-modal">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-8 relative">
+            <button onclick="closeHotelDetails()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 z-10 bg-white rounded-full p-2 hover:bg-surface-container">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="overflow-y-auto max-h-[90vh] custom-scrollbar">
+                <!-- Hero Image -->
+                <div class="w-full h-64 md:h-80 overflow-hidden relative">
+                    <img id="hotel-detail-image" src="" alt="Hotel" class="w-full h-full object-cover"/>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6 md:p-8">
+                    <!-- Header -->
+                    <div class="mb-6">
+                        <div class="flex items-center gap-2 mb-2" id="hotel-detail-stars"></div>
+                        <h1 id="hotel-detail-name" class="text-3xl md:text-4xl font-black text-primary brand-font mb-2"></h1>
+                        <div class="flex items-center gap-2 text-on-surface-variant text-sm mb-4">
+                            <span class="material-symbols-outlined text-base">location_on</span>
+                            <span id="hotel-detail-location"></span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-tertiary-container/10 text-on-tertiary-container px-4 py-2 rounded-lg font-semibold">
+                                <span id="hotel-detail-rating"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-8">
+                        <h2 class="text-lg font-bold text-primary mb-3">About this hotel</h2>
+                        <p id="hotel-detail-description" class="text-on-surface-variant leading-relaxed"></p>
+                    </div>
+
+                    <!-- Amenities -->
+                    <div class="mb-8">
+                        <h2 class="text-lg font-bold text-primary mb-4">Amenities</h2>
+                        <div class="flex flex-wrap gap-2" id="hotel-detail-amenities"></div>
+                    </div>
+
+                    <!-- Prices from Platforms -->
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-primary mb-4">Prices on Different Platforms</h2>
+                        <div class="space-y-3" id="hotel-detail-prices"></div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 flex-col sm:flex-row">
+                        <button onclick="closeHotelDetails()" class="flex-1 py-3 border-2 border-outline-variant rounded-full font-bold text-on-surface hover:bg-surface-container transition-colors">
+                            Close
+                        </button>
+                        <button onclick="showSupportModal()" class="flex-1 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">help</span>
+                            Need Help?
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div class="hidden fixed inset-0 z-[999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" id="support-modal">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <button onclick="closeSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 z-10 float-right m-4">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center mx-auto mb-3">
+                        <span class="material-symbols-outlined text-tertiary-container text-2xl">support_agent</span>
+                    </div>
+                    <div class="text-2xl font-bold text-primary brand-font mb-1">Get Support</div>
+                    <p class="text-sm text-on-surface-variant">We're here to help! Choose how you'd like to reach us.</p>
+                </div>
+
+                <!-- Support Options -->
+                <div class="space-y-3">
+                    <!-- Email Support -->
+                    <a href="mailto:support@staygo.com" class="flex items-center gap-4 p-4 border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-fixed/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-lg">mail</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-on-surface text-sm">Email Us</p>
+                            <p class="text-xs text-on-surface-variant">support@staygo.com</p>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">arrow_outward</span>
+                    </a>
+
+                    <!-- Phone Support -->
+                    <a href="tel:+919876543210" class="flex items-center gap-4 p-4 border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-fixed/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-lg">phone</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-on-surface text-sm">Call Us</p>
+                            <p class="text-xs text-on-surface-variant">+91 98765 43210</p>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 group-hover:text-secondary transition-colors">arrow_outward</span>
+                    </a>
+
+                    <!-- WhatsApp Support -->
+                    <a href="https://wa.me/919876543210" target="_blank" class="flex items-center gap-4 p-4 border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-fixed/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-lg">chat</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-on-surface text-sm">WhatsApp Chat</p>
+                            <p class="text-xs text-on-surface-variant">Instant messaging support</p>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 group-hover:text-green-500 transition-colors">arrow_outward</span>
+                    </a>
+
+                    <!-- Chat Support -->
+                    <button onclick="showChatSupport()" class="w-full flex items-center gap-4 p-4 border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-fixed/10 transition-all group">
+                        <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-lg">forum</span>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <p class="font-semibold text-on-surface text-sm">Live Chat</p>
+                            <p class="text-xs text-on-surface-variant">Chat with our team</p>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">arrow_outward</span>
+                    </button>
+                </div>
+
+                <!-- Chat Input (initially hidden) -->
+                <div id="chat-support-panel" class="hidden mt-6 pt-6 border-t-2 border-outline-variant">
+                    <div class="mb-4 max-h-48 overflow-y-auto custom-scrollbar">
+                        <div class="flex gap-2 mb-2">
+                            <div class="bg-tertiary-fixed rounded-lg px-3 py-2 max-w-xs">
+                                <p class="text-xs font-medium text-tertiary-container">Hello! How can we assist you today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Type your message..." class="flex-1 border-2 border-outline-variant rounded-lg px-3 py-2 text-sm focus:border-primary focus:ring-0 transition-colors" />
+                        <button onclick="sendChatMessage()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-container transition-colors">
+                            <span class="material-symbols-outlined text-lg">send</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FAQ Link -->
+                <div class="mt-6 pt-6 border-t-2 border-outline-variant">
+                    <a href="#faq" class="flex items-center justify-center gap-2 text-sm font-semibold text-primary hover:text-primary-container transition-colors">
+                        <span class="material-symbols-outlined text-lg">help</span>
+                        View FAQs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script src="realdata.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Data Source Indicator -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        setupRealDataIntegration();
+        
+        // Show data source status
+        const status = document.getElementById('data-source-status');
+        if (status) {
+          const isRealData = typeof window.SKYSCANNER_API_KEY !== 'undefined' && 
+                             window.SKYSCANNER_API_KEY !== 'YOUR_SKYSCANNER_API_KEY';
+          status.textContent = isRealData ? '🔄 Real-time Data' : '📊 Demo Data';
+          status.title = isRealData ? 
+            'Using live data from real travel APIs' : 
+            'Using simulated data. Setup real data: See REAL_DATA_SETUP.md';
+        }
+      });
+    </script>
+</body>
+</html>

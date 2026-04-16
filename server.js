@@ -71,7 +71,7 @@ async function scrapeFlights(from, to, date) {
         return [];
       }
     })(),
-    new Promise(resolve => setTimeout(() => resolve([]), 8000))
+    new Promise(resolve => setTimeout(() => resolve(null), 8000))
   ]);
 }
 
@@ -117,7 +117,7 @@ async function scrapeHotels(city, checkIn, checkOut) {
         return [];
       }
     })(),
-    new Promise(resolve => setTimeout(() => resolve([]), 8000))
+    new Promise(resolve => setTimeout(() => resolve(null), 8000))
   ]);
 }
 
@@ -162,7 +162,7 @@ async function scrapeTrains(from, to, date) {
         return [];
       }
     })(),
-    new Promise(resolve => setTimeout(() => resolve([]), 8000))
+    new Promise(resolve => setTimeout(() => resolve(null), 8000))
   ]);
 }
 
@@ -207,7 +207,7 @@ async function scrapeBuses(from, to, date) {
         return [];
       }
     })(),
-    new Promise(resolve => setTimeout(() => resolve([]), 8000))
+    new Promise(resolve => setTimeout(() => resolve(null), 8000))
   ]);
 }
 
@@ -230,17 +230,19 @@ app.get('/api/flights', async (req, res) => {
     console.log(`📊 Scraping flights: ${from} → ${to} on ${date}`);
     let flights = await scrapeFlights(from, to, date);
     
-    // Return fallback data if scraping fails or returns empty
-    if (!flights || flights.length === 0) {
-      console.log('📋 Using fallback flight data');
+    // Only use fallback if scraping timed out (null), not for real empty results
+    if (flights === null) {
+      console.log('📋 Scraping timed out, using fallback flight data');
       flights = [
         { airline: 'IndiGo', depTime: '06:00 AM', arrTime: '08:30 AM', duration: '2h 30m', durationMin: 150, stops: 0, price: 3500 },
         { airline: 'Air India', depTime: '07:15 AM', arrTime: '09:45 AM', duration: '2h 30m', durationMin: 150, stops: 0, price: 4200 },
         { airline: 'SpiceJet', depTime: '10:00 AM', arrTime: '01:30 PM', duration: '3h 30m', durationMin: 210, stops: 1, price: 2800 },
       ];
+    } else if (!flights) {
+      flights = [];
     }
     
-    res.json({ success: true, data: flights, count: flights.length });
+    res.json({ success: true, data: flights || [], count: (flights || []).length });
   } catch (error) {
     console.error('Flight API error:', error.message);
     res.status(500).json({ error: error.message });
@@ -259,17 +261,19 @@ app.get('/api/hotels', async (req, res) => {
     console.log(`🏨 Scraping hotels: ${city} from ${checkIn} to ${checkOut}`);
     let hotels = await scrapeHotels(city, checkIn, checkOut);
     
-    // Return fallback data if scraping fails or returns empty
-    if (!hotels || hotels.length === 0) {
-      console.log('📋 Using fallback hotel data');
+    // Only use fallback if scraping timed out (null), not for real empty results
+    if (hotels === null) {
+      console.log('📋 Scraping timed out, using fallback hotel data');
       hotels = [
         { name: 'OYO Townhouse', location: `${city}, City Center`, price: 1299, rating: 4.2, reviews: 245 },
         { name: 'FabHotel Prime', location: `${city}, Business District`, price: 1899, rating: 4.4, reviews: 312 },
         { name: 'The Leela', location: `${city}, Downtown`, price: 4899, rating: 4.8, reviews: 487 },
       ];
+    } else if (!hotels) {
+      hotels = [];
     }
     
-    res.json({ success: true, data: hotels, count: hotels.length });
+    res.json({ success: true, data: hotels || [], count: (hotels || []).length });
   } catch (error) {
     console.error('Hotel API error:', error.message);
     res.status(500).json({ error: error.message });
@@ -288,16 +292,18 @@ app.get('/api/trains', async (req, res) => {
     console.log(`🚆 Scraping trains: ${from} → ${to} on ${date}`);
     let trains = await scrapeTrains(from, to, date);
     
-    // Return fallback data if scraping fails or returns empty
-    if (!trains || trains.length === 0) {
-      console.log('📋 Using fallback train data');
+    // Only use fallback if scraping timed out (null), not for real empty results
+    if (trains === null) {
+      console.log('📋 Scraping timed out, using fallback train data');
       trains = [
         { trainName: 'Rajdhani Express', trainNo: '12001', depTime: '06:00 PM', arrTime: '08:00 AM', duration: '14h', durationMin: 840, classes: ['1A', '2A', '3A'], price: 3500, seats: 15 },
         { trainName: 'Shatabdi Express', trainNo: '12009', depTime: '08:00 AM', arrTime: '06:00 PM', duration: '10h', durationMin: 600, classes: ['CC', 'EC', 'Chair'], price: 2500, seats: 20 },
       ];
+    } else if (!trains) {
+      trains = [];
     }
     
-    res.json({ success: true, data: trains, count: trains.length });
+    res.json({ success: true, data: trains || [], count: (trains || []).length });
   } catch (error) {
     console.error('Train API error:', error.message);
     res.status(500).json({ error: error.message });
@@ -316,17 +322,19 @@ app.get('/api/buses', async (req, res) => {
     console.log(`🚌 Scraping buses: ${from} → ${to} on ${date}`);
     let buses = await scrapeBuses(from, to, date);
     
-    // Return fallback data if scraping fails or returns empty
-    if (!buses || buses.length === 0) {
-      console.log('📋 Using fallback bus data');
+    // Only use fallback if scraping timed out (null), not for real empty results
+    if (buses === null) {
+      console.log('📋 Scraping timed out, using fallback bus data');
       buses = [
         { operator: 'RedBus Premium', type: 'AC Sleeper', depTime: '08:00 PM', arrTime: '06:00 AM', duration: '10h', durationMin: 600, price: 1200, seats: 12 },
         { operator: 'AbhiBus', type: 'AC Semi-Sleeper', depTime: '09:00 PM', arrTime: '07:00 AM', duration: '10h', durationMin: 600, price: 950, seats: 15 },
         { operator: 'SRS Travels', type: 'AC Sleeper', depTime: '10:00 PM', arrTime: '08:00 AM', duration: '10h', durationMin: 600, price: 1100, seats: 10 },
       ];
+    } else if (!buses) {
+      buses = [];
     }
     
-    res.json({ success: true, data: buses, count: buses.length });
+    res.json({ success: true, data: buses || [], count: (buses || []).length });
   } catch (error) {
     console.error('Bus API error:', error.message);
     res.status(500).json({ error: error.message });

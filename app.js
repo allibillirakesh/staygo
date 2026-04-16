@@ -460,8 +460,10 @@ function performSearch() {
     // Show data source banner
     showDataSourceBanner();
 
-    // Render smart recommendations (budget hotels + how to reach)
-    renderSmartRecommendations(searchType, searchFrom, searchTo);
+    // Render smart recommendations only if there are results
+    if (currentResults && currentResults.length > 0) {
+      renderSmartRecommendations(searchType, searchFrom, searchTo);
+    }
 
     showView("view-results");
   }, 3000);
@@ -710,7 +712,8 @@ function generateBuses(results, from, to) {
 
 // ==================== SORT TAB UPDATES ====================
 function updateSortTabs() {
-  if (currentResults.length === 0) return;
+  if (currentResults.length === 0) return; // Skip if no results
+  
   const sorted = [...currentResults];
 
   // Cheapest
@@ -976,6 +979,25 @@ function resetFilters() {
 function renderResults() {
   const container = document.getElementById("results-container");
   let sorted = [...currentResults];
+
+  // Show "No results" message if empty
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12 px-6">
+        <div class="text-6xl mb-4">🔍</div>
+        <h2 class="text-2xl font-bold text-on-surface mb-2">No Results Found</h2>
+        <p class="text-on-surface-variant mb-6">
+          Unfortunately, no ${searchType}s are available for this route on the selected date.
+          <br/>Please try a different route or date.
+        </p>
+        <button onclick="showHome()" class="px-6 py-3 bg-primary text-on-primary rounded-full font-semibold hover:shadow-lg transition-all">
+          Try Another Search
+        </button>
+      </div>
+    `;
+    document.getElementById("load-more-wrap").style.display = "none";
+    return;
+  }
 
   if (currentSort === "price") sorted.sort((a, b) => a.bestPrice - b.bestPrice);
   else if (currentSort === "fastest") sorted.sort((a, b) => (a.durationMin || 0) - (b.durationMin || 0));

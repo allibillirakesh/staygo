@@ -21,12 +21,12 @@ exports.handler = async (event, context) => {
     let buses = await scrapeWithTimeout(async () => {
       return await scrapeBuses(from, to, date);
     }, 24000).catch(err => {
-      console.error('Bus scraping failed, using fallback:', err.message);
-      return [];
+      console.error('Bus scraping timed out, will use fallback:', err.message);
+      return null; // Return null on timeout to distinguish from real empty results
     });
 
-    // Fallback bus data
-    if (!buses || buses.length === 0) {
+    // Fallback bus data only if scraping timed out (null), not for real empty results
+    if (buses === null) {
       buses = [
         { operator: 'RedBus Premium', type: 'AC Sleeper', depTime: '08:00 PM', arrTime: '06:00 AM', duration: '10h', durationMin: 600, price: 1200, seats: 12 },
         { operator: 'AbhiBus', type: 'AC Semi-Sleeper', depTime: '09:00 PM', arrTime: '07:00 AM', duration: '10h', durationMin: 600, price: 950, seats: 15 },

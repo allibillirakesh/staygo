@@ -21,12 +21,12 @@ exports.handler = async (event, context) => {
     let hotels = await scrapeWithTimeout(async () => {
       return await scrapeHotels(city, checkIn, checkOut);
     }, 24000).catch(err => {
-      console.error('Hotel scraping failed, using fallback:', err.message);
-      return [];
+      console.error('Hotel scraping timed out, will use fallback:', err.message);
+      return null; // Return null on timeout to distinguish from real empty results
     });
 
-    // Fallback hotel data
-    if (!hotels || hotels.length === 0) {
+    // Fallback hotel data only if scraping timed out (null), not for real empty results
+    if (hotels === null) {
       hotels = [
         { name: 'OYO Townhouse', location: `${city}, City Center`, price: 1299, rating: 4.2, reviews: 245 },
         { name: 'FabHotel Prime', location: `${city}, Business District`, price: 1899, rating: 4.4, reviews: 312 },

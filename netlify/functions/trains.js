@@ -21,12 +21,12 @@ exports.handler = async (event, context) => {
     let trains = await scrapeWithTimeout(async () => {
       return await scrapeTrains(from, to, date);
     }, 24000).catch(err => {
-      console.error('Train scraping failed, using fallback:', err.message);
-      return [];
+      console.error('Train scraping timed out, will use fallback:', err.message);
+      return null; // Return null on timeout to distinguish from real empty results
     });
 
-    // Fallback train data
-    if (!trains || trains.length === 0) {
+    // Fallback train data only if scraping timed out (null), not for real empty results
+    if (trains === null) {
       trains = [
         { trainName: 'Rajdhani Express', trainNo: '12001', depTime: '06:00 PM', arrTime: '08:00 AM', duration: '14h', durationMin: 840, classes: ['1A', '2A', '3A'], price: 3500, seats: 15 },
         { trainName: 'Shatabdi Express', trainNo: '12009', depTime: '08:00 AM', arrTime: '06:00 PM', duration: '10h', durationMin: 600, classes: ['CC', 'EC', 'Chair'], price: 2500, seats: 20 },

@@ -22,12 +22,12 @@ exports.handler = async (event, context) => {
     let flights = await scrapeWithTimeout(async () => {
       return await scrapeFlights(from, to, date);
     }, 24000).catch(err => {
-      console.error('Scraping failed, using fallback:', err.message);
-      return [];
+      console.error('Scraping timed out, will use fallback:', err.message);
+      return null; // Return null on timeout to distinguish from real empty results
     }); // 24 second timeout
 
-    // Fallback flight data if scraping returns empty
-    if (!flights || flights.length === 0) {
+    // Fallback flight data only if scraping timed out (null), not for real empty results
+    if (flights === null) {
       flights = [
         { airline: 'IndiGo', depTime: '06:00 AM', arrTime: '08:30 AM', duration: '2h 30m', durationMin: 150, stops: 0, price: 3500 },
         { airline: 'Air India', depTime: '07:15 AM', arrTime: '09:45 AM', duration: '2h 30m', durationMin: 150, stops: 0, price: 4200 },

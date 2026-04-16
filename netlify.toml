@@ -34,4 +34,4 @@
 
 # Timeout settings
 [context.production.environment]
-  FUNCTION_TIMEOUT = 30
+  FUNCTION_TIMEOUT = "30"

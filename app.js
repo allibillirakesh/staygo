@@ -746,17 +746,27 @@ function renderFilters() {
   let html = "";
 
   // Price range filter (all types)
-  const prices = currentResults.map(r => r.bestPrice);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  const prices = currentResults.map(r => r.bestPrice).filter(p => !isNaN(p));
+  const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+  const maxPrice = prices.length > 0 ? Math.max(...prices) : 10000;
   html += `
     <div class="space-y-3 mb-4">
       <div class="flex items-center gap-2 text-primary font-semibold text-sm"><span class="material-symbols-outlined text-sm">currency_rupee</span><span>Price Range</span></div>
-      <div class="px-1">
-        <input type="range" id="filter-price-range" min="${minPrice}" max="${maxPrice}" value="${maxPrice}" step="100" class="w-full accent-primary" oninput="updatePriceLabel(this.value); applyFilters()"/>
-        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+      <div class="space-y-3 px-1">
+        <div class="flex gap-2 items-end">
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-600 block mb-1">Min Price</label>
+            <input type="number" id="filter-price-min" min="${minPrice}" max="${maxPrice}" value="${minPrice}" step="100" class="w-full px-2 py-2 border border-outline-variant rounded-lg text-sm" oninput="applyFilters()"/>
+          </div>
+          <span class="text-slate-400">—</span>
+          <div class="flex-1">
+            <label class="text-[10px] text-slate-600 block mb-1">Max Price</label>
+            <input type="number" id="filter-price-max" min="${minPrice}" max="${maxPrice}" value="${maxPrice}" step="100" class="w-full px-2 py-2 border border-outline-variant rounded-lg text-sm" oninput="applyFilters()"/>
+          </div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-500">
           <span>₹${minPrice.toLocaleString('en-IN')}</span>
-          <span id="price-range-label">Up to ₹${maxPrice.toLocaleString('en-IN')}</span>
+          <span id="price-range-label">₹${minPrice.toLocaleString('en-IN')} — ₹${maxPrice.toLocaleString('en-IN')}</span>
         </div>
       </div>
     </div>`;
@@ -846,7 +856,14 @@ function renderFilters() {
 }
 
 function updatePriceLabel(val) {
-  document.getElementById('price-range-label').textContent = 'Up to ₹' + parseInt(val).toLocaleString('en-IN');
+  // This function is kept for backward compatibility
+  const minInput = document.getElementById('filter-price-min');
+  const maxInput = document.getElementById('filter-price-max');
+  if (minInput && maxInput) {
+    const minVal = parseInt(minInput.value) || 0;
+    const maxVal = parseInt(maxInput.value) || 100000;
+    document.getElementById('price-range-label').textContent = '₹' + minVal.toLocaleString('en-IN') + ' — ₹' + maxVal.toLocaleString('en-IN');
+  }
 }
 
 function toggleDepartureFilter(btn) {
@@ -866,8 +883,16 @@ function getDepHour(timeStr) {
 
 function applyFilters() {
   // Read price range
-  const priceSlider = document.getElementById('filter-price-range');
-  const maxPrice = priceSlider ? parseInt(priceSlider.value) : Infinity;
+  const minPriceInput = document.getElementById('filter-price-min');
+  const maxPriceInput = document.getElementById('filter-price-max');
+  const minPrice = minPriceInput ? parseInt(minPriceInput.value) : 0;
+  const maxPrice = maxPriceInput ? parseInt(maxPriceInput.value) : Infinity;
+
+  // Update label
+  const labelEl = document.getElementById('price-range-label');
+  if (labelEl) {
+    labelEl.textContent = '₹' + minPrice.toLocaleString('en-IN') + ' — ₹' + maxPrice.toLocaleString('en-IN');
+  }
 
   // Read checkbox filters
   const checkedStops = [...document.querySelectorAll('.filter-cb[data-filter="stops"]:checked')].map(c => c.dataset.value);
@@ -881,8 +906,8 @@ function applyFilters() {
   const activeTimes = [...document.querySelectorAll('.dep-time-btn.bg-primary')].map(b => b.dataset.time);
 
   let filtered = currentResults.filter(item => {
-    // Price filter
-    if (item.bestPrice > maxPrice) return false;
+    // Price filter - check both min and max
+    if (item.bestPrice < minPrice || item.bestPrice > maxPrice) return false;
 
     // Flights filters
     if (item.type === 'flight') {

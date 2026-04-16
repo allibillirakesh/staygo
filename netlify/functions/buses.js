@@ -20,10 +20,7 @@ exports.handler = async (event, context) => {
 
     let buses = await scrapeWithTimeout(async () => {
       return await scrapeBuses(from, to, date);
-    }, 24000).catch(err => {
-      console.error('Bus scraping timed out, will use fallback:', err.message);
-      return null; // Return null on timeout to distinguish from real empty results
-    });
+    }, 24000);
 
     // Fallback bus data only if scraping timed out (null), not for real empty results
     if (buses === null) {

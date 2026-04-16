@@ -35,8 +35,8 @@ async function initBrowser() {
 async function scrapeWithTimeout(scrapeFn, timeoutMs = 25000) {
   return Promise.race([
     scrapeFn(),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Scraping timeout')), timeoutMs)
+    new Promise(resolve =>
+      setTimeout(() => resolve(null), timeoutMs)
     ),
   ]);
 }

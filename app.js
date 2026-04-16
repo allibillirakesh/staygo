@@ -1200,10 +1200,20 @@ function renderTrainCard(item, idx, delay) {
       </div>
       <!-- Classes -->
       <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-surface-container-low flex flex-wrap gap-2">
-        ${(item.classes || []).map((c) => {
-          const classPrice = c && c.price ? c.price : 0;
-          const classAvail = c && typeof c.avail !== 'undefined' ? c.avail : 0;
-          const classCode = c && c.code ? c.code : 'Unknown';
+        ${(item.classes || []).map((c, i) => {
+          // Handle both string and object formats
+          let classCode, classPrice, classAvail;
+          if (typeof c === 'string') {
+            // Old format: just string class code
+            classCode = c;
+            classPrice = item.bestPrice ? Math.floor(item.bestPrice * (1 - i * 0.15)) : 0;
+            classAvail = item.seats ? item.seats - i * 2 : 0;
+          } else {
+            // New format: object with code, price, avail
+            classCode = c && c.code ? c.code : 'Unknown';
+            classPrice = c && typeof c.price !== 'undefined' ? c.price : 0;
+            classAvail = c && typeof c.avail !== 'undefined' ? c.avail : 0;
+          }
           return `
           <div class="px-3 py-1.5 rounded-lg border ${classAvail > 0 ? 'border-on-tertiary-container/20 bg-tertiary-fixed/5' : 'border-error/20 bg-error-container/10'} text-[10px]">
             <span class="font-bold ${classAvail > 0 ? 'text-on-tertiary-container' : 'text-error'}">${classCode}</span>

@@ -34,7 +34,10 @@ async function initBrowser() {
 // Generic scraper with timeout
 async function scrapeWithTimeout(scrapeFn, timeoutMs = 25000) {
   return Promise.race([
-    scrapeFn(),
+    scrapeFn().catch(err => {
+      console.error('Scraper error caught:', err.message);
+      return null; // Return null on error so endpoints use fallback data
+    }),
     new Promise(resolve =>
       setTimeout(() => resolve(null), timeoutMs)
     ),

@@ -987,7 +987,7 @@ function renderResults() {
         <div class="text-6xl mb-4">🔍</div>
         <h2 class="text-2xl font-bold text-on-surface mb-2">No Results Found</h2>
         <p class="text-on-surface-variant mb-6">
-          Unfortunately, no ${searchType}s are available for this route on the selected date.
+          Unfortunately, no ${searchType} options are available for this route on the selected date.
           <br/>Please try a different route or date.
         </p>
         <button onclick="showHome()" class="px-6 py-3 bg-primary text-on-primary rounded-full font-semibold hover:shadow-lg transition-all">

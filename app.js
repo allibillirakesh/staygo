@@ -1200,13 +1200,18 @@ function renderTrainCard(item, idx, delay) {
       </div>
       <!-- Classes -->
       <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-surface-container-low flex flex-wrap gap-2">
-        ${item.classes.map((c) => `
-          <div class="px-3 py-1.5 rounded-lg border ${c.avail > 0 ? 'border-on-tertiary-container/20 bg-tertiary-fixed/5' : 'border-error/20 bg-error-container/10'} text-[10px]">
-            <span class="font-bold ${c.avail > 0 ? 'text-on-tertiary-container' : 'text-error'}">${c.code}</span>
-            <span class="text-slate-500 ml-1">₹${c.price.toLocaleString("en-IN")}</span>
-            <span class="ml-1 ${c.avail > 0 ? 'text-on-tertiary-container' : 'text-error'}">${c.avail > 0 ? `${c.avail} avl` : 'WL'}</span>
+        ${(item.classes || []).map((c) => {
+          const classPrice = c && c.price ? c.price : 0;
+          const classAvail = c && typeof c.avail !== 'undefined' ? c.avail : 0;
+          const classCode = c && c.code ? c.code : 'Unknown';
+          return `
+          <div class="px-3 py-1.5 rounded-lg border ${classAvail > 0 ? 'border-on-tertiary-container/20 bg-tertiary-fixed/5' : 'border-error/20 bg-error-container/10'} text-[10px]">
+            <span class="font-bold ${classAvail > 0 ? 'text-on-tertiary-container' : 'text-error'}">${classCode}</span>
+            <span class="text-slate-500 ml-1">₹${classPrice.toLocaleString("en-IN")}</span>
+            <span class="ml-1 ${classAvail > 0 ? 'text-on-tertiary-container' : 'text-error'}">${classAvail > 0 ? `${classAvail} avl` : 'WL'}</span>
           </div>
-        `).join("")}
+        `;
+        }).join("")}
         ${item.amenities.map((a) => `<span class="text-[10px] font-bold text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-xs">restaurant</span>${a}</span>`).join("")}
       </div>
       <!-- Hidden price comparison -->

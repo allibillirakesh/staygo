@@ -31,30 +31,35 @@ exports.handler = async (event, context) => {
       ];
     }
 
-    const formattedTrains = trains.map((train, idx) => ({
-      id: `train-${idx}`,
-      type: 'train',
-      name: train.trainName,
-      code: train.trainNo,
-      from,
-      to,
-      depTime: train.depTime,
-      arrTime: train.arrTime,
-      duration: train.duration,
-      durationMin: train.durationMin,
-      classes: train.classes.map((c, i) => ({
-        code: c,
-        price: Math.floor(train.price * (1 - i * 0.15)),
-        avail: train.seats - i * 2,
-      })) || [],
-      sortedPrices: [['IRCTC', train.price]],
-      prices: [{ price: train.price, platform: 'IRCTC', class: '3A' }],
-      bestPrice: train.price,
-      bestPlatform: 'IRCTC',
-      seats: train.seats,
-      amenities: ['Bedding', 'Meals'],
-      rating: 4.2,
-    }));
+    const formattedTrains = trains.map((train, idx) => {
+      const basePrice = train.price || 2500;
+      const baseSeats = train.seats || 10;
+      
+      return {
+        id: `train-${idx}`,
+        type: 'train',
+        name: train.trainName,
+        code: train.trainNo,
+        from,
+        to,
+        depTime: train.depTime,
+        arrTime: train.arrTime,
+        duration: train.duration,
+        durationMin: train.durationMin || 840,
+        classes: (train.classes || ['1A', '2A', '3A']).map((c, i) => ({
+          code: c,
+          price: Math.floor(basePrice * (1 - i * 0.15)),
+          avail: baseSeats - i * 2,
+        })),
+        sortedPrices: [['IRCTC', basePrice]],
+        prices: [{ price: basePrice, platform: 'IRCTC', class: '3A' }],
+        bestPrice: basePrice,
+        bestPlatform: 'IRCTC',
+        seats: baseSeats,
+        amenities: ['Bedding', 'Meals'],
+        rating: 4.2,
+      };
+    });
 
     return {
       statusCode: 200,

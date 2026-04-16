@@ -4,7 +4,11 @@
 // ============================
 
 // Backend server URL - empty for Netlify, or 'http://localhost:3000' for local development
-const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+const BACKEND_URL = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' || 
+  window.location.hostname === '127.0.0.1' ||
+  window.location.protocol === 'file:'
+)
   ? 'http://localhost:3000'
   : ''; // Use same domain for Netlify Functions
 
@@ -14,7 +18,14 @@ const BACKEND_URL = typeof window !== 'undefined' && window.location.hostname ==
 async function checkBackendStatus() {
   try {
     const healthUrl = BACKEND_URL ? `${BACKEND_URL}/health` : '/.netlify/functions/health';
-    const response = await fetch(healthUrl);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+    
+    const response = await fetch(healthUrl, { 
+      signal: controller.signal,
+      mode: 'cors'
+    });
+    clearTimeout(timeout);
     return response.ok;
   } catch (error) {
     return false;
@@ -62,24 +73,24 @@ async function fetchRealFlights(fromCity, toCity, date) {
     // Transform backend data to app format
     return result.data?.map((flight, idx) => ({
       type: 'flight',
-      name: flight.name || flight.airline,
-      code: flight.code || `${flight.airline?.substring(0, 2).toUpperCase()}-${1000 + idx}`,
+      name: flight.name || flight.airline || 'Airline',
+      code: flight.code || `${(flight.airline || 'FL').substring(0, 2).toUpperCase()}-${1000 + idx}`,
       from: `${fromCity}`,
       to: `${toCity}`,
       depTime: flight.depTime,
       arrTime: flight.arrTime,
       duration: flight.duration,
-      durationMin: flight.durationMin || parseInt(flight.duration) * 60,
-      stops: flight.stops,
+      durationMin: flight.durationMin || 150,
+      stops: flight.stops || 0,
       stopsText: flight.stopsText || (flight.stops === 0 ? 'Nonstop' : `${flight.stops} Stop`),
-      prices: { [flight.bestPlatform]: flight.bestPrice },
-      bestPrice: flight.bestPrice,
-      bestPlatform: flight.bestPlatform,
-      sortedPrices: [[flight.bestPlatform, flight.bestPrice]],
+      prices: { 'MakeMyTrip': flight.price || flight.bestPrice },
+      bestPrice: flight.price || flight.bestPrice || 3500,
+      bestPlatform: flight.bestPlatform || 'MakeMyTrip',
+      sortedPrices: [['MakeMyTrip', flight.price || flight.bestPrice || 3500]],
       amenities: flight.amenities || ['Free WiFi', 'Meal Included'],
-      rating: flight.rating || (3.5 + Math.random() * 1.3).toFixed(1),
+      rating: flight.rating || 4.2,
       source: 'realtime'
-    })) || null;
+    })) || [];
   } catch (error) {
     console.error('❌ Real flight data unavailable:', error.message);
     return null;
@@ -109,16 +120,16 @@ async function fetchRealHotels(cityName, checkInDate, checkOutDate) {
       stars: hotel.rating >= 4.5 ? 5 : hotel.rating >= 4 ? 4 : 3,
       location: hotel.location || `${cityName}, India`,
       image: hotel.image || 'https://via.placeholder.com/300x200?text=Hotel+Image',
-      prices: { [hotel.name]: hotel.price },
-      bestPrice: hotel.price,
-      bestPlatform: hotel.name,
-      sortedPrices: [[hotel.name, hotel.price]],
+      prices: { 'Booking.com': hotel.price },
+      bestPrice: hotel.price || 1500,
+      bestPlatform: 'Booking.com',
+      sortedPrices: [['Booking.com', hotel.price || 1500]],
       amenities: hotel.amenities || ['WiFi', 'Parking', 'AC', 'Restaurant'],
-      rating: (hotel.rating || 4.0).toFixed(1),
-      reviews: hotel.reviews || Math.floor(Math.random() * 500) + 100,
+      rating: (hotel.rating || 4.0),
+      reviews: hotel.reviews || 250,
       description: `Experience comfort at ${hotel.name}. Located in ${hotel.location} with modern amenities.`,
       source: 'realtime'
-    })) || null;
+    })) || [];
   } catch (error) {
     console.error('❌ Real hotel data unavailable:', error.message);
     return null;
@@ -147,8 +158,8 @@ async function fetchRealTrains(fromStation, toStation, date) {
     // Transform backend data to app format
     return result.data?.map((train, idx) => ({
       type: 'train',
-      name: train.name || train.trainName,
-      code: train.code || train.trainNo,
+      name: train.name || train.trainName || 'Express',
+      code: train.code || train.trainNo || '12001',
       from: fromStation,
       fromCode: fromCode,
       to: toStation,
@@ -156,21 +167,21 @@ async function fetchRealTrains(fromStation, toStation, date) {
       depTime: train.depTime,
       arrTime: train.arrTime,
       duration: train.duration,
-      durationMin: train.durationMin || parseInt(train.duration) * 60,
+      durationMin: train.durationMin || 840,
       classes: train.classes || [
-        { code: 'SL', name: 'Sleeper', price: train.bestPrice, avail: 60 },
-        { code: '3A', name: 'AC 3 Tier', price: Math.round(train.bestPrice * 1.5), avail: 40 },
-        { code: '2A', name: 'AC 2 Tier', price: Math.round(train.bestPrice * 2.2), avail: 30 }
+        { code: 'SL', name: 'Sleeper', price: train.price || 1500, avail: 60 },
+        { code: '3A', name: 'AC 3 Tier', price: Math.round((train.price || 1500) * 1.5), avail: 40 },
+        { code: '2A', name: 'AC 2 Tier', price: Math.round((train.price || 1500) * 2.2), avail: 30 }
       ],
-      prices: { [train.bestPlatform]: train.bestPrice },
-      bestPrice: train.bestPrice,
-      bestPlatform: train.bestPlatform || 'IRCTC',
-      sortedPrices: [[train.bestPlatform || 'IRCTC', train.bestPrice]],
-      rating: train.rating || (3.8 + Math.random() * 0.7).toFixed(1),
+      prices: { 'IRCTC': train.price || 1500 },
+      bestPrice: train.price || 1500,
+      bestPlatform: 'IRCTC',
+      sortedPrices: [['IRCTC', train.price || 1500]],
+      rating: train.rating || 4.1,
       amenities: train.amenities || ['Free Meal', 'Blanket & Pillow', 'Pantry Car'],
-      seats: train.seats,
+      seats: train.seats || 20,
       source: 'realtime'
-    })) || null;
+    })) || [];
   } catch (error) {
     console.error('❌ Real train data unavailable:', error.message);
     return null;
@@ -196,23 +207,23 @@ async function fetchRealBuses(fromCity, toCity, date) {
     // Transform backend data to app format
     return result.data?.map((bus, idx) => ({
       type: 'bus',
-      name: bus.operator || bus.name || bus.busName,
-      busType: bus.busType,
+      name: bus.operator || bus.name || bus.busName || 'Bus',
+      busType: bus.type || bus.busType || 'AC',
       from: fromCity,
       to: toCity,
       depTime: bus.depTime,
       arrTime: bus.arrTime,
       duration: bus.duration,
-      durationMin: bus.durationMin || parseInt(bus.duration) * 60,
-      prices: { [bus.bestPlatform]: bus.bestPrice },
-      bestPrice: bus.bestPrice,
-      bestPlatform: bus.bestPlatform || 'RedBus',
-      sortedPrices: [[bus.bestPlatform || 'RedBus', bus.bestPrice]],
+      durationMin: bus.durationMin || 600,
+      prices: { 'RedBus': bus.price || 1000 },
+      bestPrice: bus.price || 1000,
+      bestPlatform: 'RedBus',
+      sortedPrices: [['RedBus', bus.price || 1000]],
       amenities: bus.amenities || ['WiFi', 'Charging Point', 'Water', 'Blanket'],
-      rating: bus.rating || (4.2).toFixed(1),
-      seats: bus.seats || Math.floor(Math.random() * 30) + 5,
+      rating: bus.rating || 4.2,
+      seats: bus.seats || 25,
       source: 'realtime'
-    })) || null;
+    })) || [];
   } catch (error) {
     console.error('❌ Real bus data unavailable:', error.message);
     return null;

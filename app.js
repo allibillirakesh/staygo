@@ -518,29 +518,31 @@ async function generateResultsAsync(type, from, to) {
       case "flights": {
         const fromCity = findCity(from);
         const toCity = findCity(to);
-        results = await fetchRealFlights(fromCity.name, toCity.name, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]);
+        results = await fetchRealFlights(fromCity.name, toCity.name, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]) || [];
         break;
       }
       case "hotels": {
-        results = await fetchRealHotels(to, document.getElementById("search-date").value || new Date().toISOString().split('T')[0], document.getElementById("search-date").value || new Date().toISOString().split('T')[0]);
+        results = await fetchRealHotels(to, document.getElementById("search-date").value || new Date().toISOString().split('T')[0], document.getElementById("search-date").value || new Date().toISOString().split('T')[0]) || [];
         break;
       }
       case "trains": {
         const fromCity = findCity(from);
         const toCity = findCity(to);
-        results = await fetchRealTrains(fromCity.name, toCity.name, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]);
+        results = await fetchRealTrains(fromCity.name, toCity.name, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]) || [];
         break;
       }
       case "buses": {
-        results = await fetchRealBuses(from, to, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]);
+        results = await fetchRealBuses(from, to, document.getElementById("search-date").value || new Date().toISOString().split('T')[0]) || [];
         break;
       }
     }
     
-    if (!results || results.length === 0) return [];
+    // Ensure results is always an array
+    if (!Array.isArray(results)) results = [];
+    if (results.length === 0) return [];
     
     // Sort by cheapest price
-    results.sort((a, b) => a.bestPrice - b.bestPrice);
+    results.sort((a, b) => (a.bestPrice || 0) - (b.bestPrice || 0));
     return results;
   } catch (error) {
     console.error('❌ Error generating results:', error);
